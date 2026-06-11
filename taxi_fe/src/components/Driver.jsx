@@ -8,16 +8,22 @@ function Driver(props) {
   let [message, setMessage] = useState();
   let [bookingId, setBookingId] = useState();
   let [visible, setVisible] = useState(false);
+  
   useEffect(() => {
-    let channel = socket.channel("driver:" + props.username, {token: "123"});
-    channel.on("booking_request", data => {
-      console.log("Received", data);
-      setMessage(data.msg);
-      setBookingId(data.bookingId);
-      setVisible(true);
-    });
-    channel.join();
-  },[props]);
+  const channel = socket.channel("driver:" + props.username, { token: "123" });
+
+  channel.on("booking_request", data => {
+    console.log("Received driver event", props.username, data);
+    setMessage(data.msg);
+    setBookingId(data.bookingId);
+    setVisible(true);
+  });
+
+  channel
+    .join()
+    .receive("ok", () => console.log("Joined driver channel:", props.username))
+    .receive("error", resp => console.log("Unable to join driver channel", resp));
+}, [props.username]);
 
   let reply = (decision) => {
     fetch(`http://localhost:4000/api/bookings/${bookingId}`, {
