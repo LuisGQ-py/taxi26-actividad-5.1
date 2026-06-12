@@ -14,7 +14,7 @@ defmodule TaxiBeWeb.BookingController do
     conn
     |> put_resp_header("Location", "/api/bookings/" <> booking_id)
     |> put_status(:created)
-    |> json(%{msg: "We are processing your request"})
+    |> json(%{msg: "We are processing your request", bookingId: booking_id})
   end
 
   def update(conn, %{"action" => "accept", "username" => username, "id" => id}) do
@@ -29,10 +29,10 @@ defmodule TaxiBeWeb.BookingController do
     json(conn, %{msg: "We will process your rejection"})
   end
 
-  def update(conn, %{"action" => "cancel", "username" => username, "id" => _id}) do
-    IO.inspect("'#{username}' is cancelling a booking request")
+  def update(conn, %{"action" => "cancel", "username" => username, "id" => id}) do
+    send_to_job(id, {:process_cancel, username})
 
-    json(conn, %{msg: "Cancelation is not implemented in version 1"})
+    json(conn, %{msg: "We will process your cancellation"})
   end
 
   defp send_to_job(id, message) do

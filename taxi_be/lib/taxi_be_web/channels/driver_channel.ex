@@ -14,7 +14,8 @@ defmodule TaxiBeWeb.DriverChannel do
 
     push(socket, "booking_request", %{
       msg: payload[:msg] || payload["msg"],
-      bookingId: payload[:bookingId] || payload["bookingId"]
+      bookingId: payload[:bookingId] || payload["bookingId"],
+      closed: payload[:closed] || payload["closed"] || false
     })
 
     {:noreply, socket}
